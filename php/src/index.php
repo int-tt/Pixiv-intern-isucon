@@ -30,20 +30,12 @@ function uri_for($path) {
   return 'http://' . $host . $path;
 }
 
-function get($key) {
-  return set($key);
-}
-
-function before() {
-  layout('base.html.php');
-}
-
 function calculate_password_hash($password, $salt) {
   return hash('sha256', $password . ':' . $salt);
 }
 
 function login_log($succeeded, $login, $user_id=null) {
-  global $db,$config;
+  global $db;
   $stmt = $db->prepare('INSERT INTO login_log (`created_at`, `user_id`, `login`, `ip`, `succeeded`) VALUES (NOW(),:user_id,:login,:ip,:succeeded)');
   $stmt->bindValue(':user_id', $user_id);
   $stmt->bindValue(':login', $login);
@@ -127,12 +119,11 @@ function current_user() {
 }
 
 function last_login() {
-  global $db,$config;
+  global $db;
   $user = current_user();
   if (empty($user)) {
     return null;
   }
-
 
   $stmt = $db->prepare('SELECT * FROM login_log WHERE succeeded = 1 AND user_id = :id ORDER BY id DESC LIMIT 2');
   $stmt->bindValue(':id', $user['id']);
@@ -241,7 +232,7 @@ switch ($_SERVER['QUERY_STRING']){
       }
       break;
   case '/report':
-      return json_encode([
+      echo json_encode([
         'banned_ips' => banned_ips(),
         'locked_users' => locked_users()
         ]);

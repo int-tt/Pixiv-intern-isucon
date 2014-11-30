@@ -21,7 +21,7 @@
         <dt>前回ログイン</dt>
         <dd id="last-logined-at"><?php echo $last_login['created_at'] ?></dd>
         <dt>最終ログインIPアドレス</dt>
-        <dd id="last-logined-ip"><?php echo $last_login['ip'] ?></dt>
+        <dd id="last-logined-ip"><?php echo $last_login['ip'] ?></dd>
       </dl>
       <div class="panel panel-default">
         <div class="panel-heading">
