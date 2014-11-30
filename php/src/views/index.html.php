@@ -1,5 +1,19 @@
-<div id="be-careful-phising" class="panel panel-danger">
-  <div class="panel-heading">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/bootflat.min.css">
+    <link rel="stylesheet" href="/stylesheets/isucon-bank.css">
+    <title>isucon4</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="topbar">
+        <a href="/"><img src="/images/isucon-bank.png" alt="いすこん銀行 オンラインバンキングサービス"></a>
+      </h1>
+	<div id="be-careful-phising" class="panel panel-danger">
+	  <div class="panel-heading">
     <span class="hikaru-mozi">偽画面にご注意ください！</span>
   </div>
   <div class="panel-body">
@@ -14,7 +28,7 @@
 </div>
 
 <?php
-$flash = flash_now();
+#$flash = flash_now();
 if (isset($flash['notice'])) {
 ?>
   <div id="notice-message" class="alert alert-danger" role="alert"><?php echo $flash['notice'] ?></div>
@@ -43,3 +57,7 @@ if (isset($flash['notice'])) {
     </div>
   </form>
 </div>
+    </div>
+
+  </body>
+</html>
