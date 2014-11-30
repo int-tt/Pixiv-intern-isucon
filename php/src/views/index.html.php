@@ -31,7 +31,7 @@
 #$flash = flash_now();
 if (isset($_SESSION["FlashNotice"])) {
 ?>
-  <div id="notice-message" class="alert alert-danger" role="alert"><?php echo $_SESSION["FlashNotice"] ?></div>
+  <div id="notice-message" class="alert alert-danger" role="alert"><?php echo $_SESSION["notice"] ?></div>
 <?php
 }
 ?>

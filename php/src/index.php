@@ -143,7 +143,7 @@ function last_login() {
 
 function banned_ips() {
   global $db,$config;
-  $threshold = option('config')['ip_ban_threshold'];
+  $threshold = $config['ip_ban_threshold'];
   $ips = [];
 
   $stmt = $db->prepare('SELECT ip FROM (SELECT ip, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY ip) AS t0 WHERE t0.max_succeeded = 0 AND t0.cnt >= :threshold');
@@ -172,7 +172,7 @@ function banned_ips() {
 
 function locked_users() {
   global $db,$config;
-  $threshold = option('config')['user_lock_threshold'];
+  $threshold = $config['user_lock_threshold'];
   $user_ids = [];
 
   $stmt = $db->prepare('SELECT login FROM (SELECT user_id, login, MAX(succeeded) as max_succeeded, COUNT(1) as cnt FROM login_log GROUP BY user_id) AS t0 WHERE t0.user_id IS NOT NULL AND t0.max_succeeded = 0 AND t0.cnt >= :threshold');
@@ -208,37 +208,37 @@ switch ($_SERVER['QUERY_STRING']){
       if (!empty($result['user'])) {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $result['user']['id'];
-        require ('views//mypage');
+	header('location: /mypage');
 	exit();
       }
       else {
         switch($result['error']) {
           case 'locked':
-             $_SESSION["FlashNotice"] = 'This account is locked.';
+             $_SESSION["notice"] = 'This account is locked.';
             break;
           case 'banned':
-            $_SESSION["FlashNotice"] = "You're banned.";
+            $_SESSION["notice"] = "You're banned.";
             break;
             default:
-             $_SESSION["FlashNotice"] = 'Wrong username or password';
+             $_SESSION["notice"] = 'Wrong username or password';
               break;
         }
         header('location: /');
         exit();
       }
       break;
-  case 'mypage':
+  case '/mypage':
       $user = current_user();
-
       if (empty($user)) {
-        flash('notice', 'You must be logged in');
+        $_SESSION["notice"] = 'You must be logged in';
         header('location: /');
         exit();
       }
       else {
-        set('user', $user);
-        set('last_login', last_login());
-        require('views/mypage.html.php');
+	#set('user', $user);
+        #set('last_login', last_login());
+	extract(['user' => $user,'last_login' => last_login()]);
+	require('views/mypage.html.php');
 	exit();
       }
       break;
@@ -248,4 +248,7 @@ switch ($_SERVER['QUERY_STRING']){
         'locked_users' => locked_users()
         ]);
       break;
+  default:
+	echo "404";
+	break;
 }

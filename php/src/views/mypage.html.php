@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/bootflat.min.css">
+    <link rel="stylesheet" href="/stylesheets/isucon-bank.css">
+    <title>isucon4</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="topbar">
+        <a href="/"><img src="/images/isucon-bank.png" alt="いすこん銀行 オンラインバンキングサービス"></a>
+      </h1>
 <div class="alert alert-success" role="alert">
   ログインに成功しました。<br>
   未読のお知らせが０件、残っています。
@@ -5,14 +19,14 @@
 
 <dl class="dl-horizontal">
   <dt>前回ログイン</dt>
-  <dd id="last-logined-at"><?php echo get('last_login')['created_at'] ?></dd>
+   <dd id="last-logined-at"><?php echo $last_login['created_at'] ?></dd>
   <dt>最終ログインIPアドレス</dt>
-  <dd id="last-logined-ip"><?php echo get('last_login')['ip'] ?></dd>
+   <dd id="last-logined-ip"><?php echo $last_login['ip'] ?>
 </dl>
 
 <div class="panel panel-default">
   <div class="panel-heading">
-  お客様ご契約ID：<?php echo get('user')['login'] ?> 様の代表口座
+  お客様ご契約ID：<?php echo $user['login'] ?> 様の代表口座
   </div>
   <div class="panel-body">
     <div class="row">
@@ -39,3 +53,8 @@
     </div>
   </div>
 </div>
+    </div>
+
+  </body>
+</html>
+
