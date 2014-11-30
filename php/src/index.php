@@ -1,29 +1,30 @@
 <?php
-require_once 'limonade/lib/limonade.php';
+#require_once 'limonade/lib/limonade.php';
+session_start();
+#function configure() {
+#  option('base_uri', '/');
+#  option('session', 'isu4_qualifier_session');
 
-function configure() {
-  option('base_uri', '/');
-  option('session', 'isu4_qualifier_session');
-
-  $host = getenv('ISU4_DB_HOST') ?: 'localhost';
-  $port = getenv('ISU4_DB_PORT') ?: 3306;
-  $dbname = getenv('ISU4_DB_NAME') ?: 'isu4_qualifier';
-  $username = getenv('ISU4_DB_USER') ?: 'root';
-  $password = getenv('ISU4_DB_PASSWORD');
-  $db = null;
-  try {
-    $db = new PDO(
-      'mysql:host=' . $host . ';port=' . $port. ';dbname=' . $dbname,
-      $username,
-      $password,
-      [ PDO::ATTR_PERSISTENT => true,
-        PDO::MYSQL_ATTR_INIT_COMMAND => 'SET CHARACTER SET `utf8`',
-      ]
-    );
-  } catch (PDOException $e) {
-    halt("Connection faild: $e");
-  }
-  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+static $host = getenv('ISU4_DB_HOST') ?: 'localhost';
+static $port = getenv('ISU4_DB_PORT') ?: 3306;
+static $dbname = getenv('ISU4_DB_NAME') ?: 'isu4_qualifier';
+static $username = getenv('ISU4_DB_USER') ?: 'root';
+static $password = getenv('ISU4_DB_PASSWORD');
+static $current_path = $_SERVER[“SCRIPT_NAME”]
+$db = null;
+try {
+  $db = new PDO(
+    'mysql:host=' . $host . ';port=' . $port. ';dbname=' . $dbname,
+    $username,
+    $password,
+    [ PDO::ATTR_PERSISTENT => true,
+      PDO::MYSQL_ATTR_INIT_COMMAND => 'SET CHARACTER SET `utf8`',
+    ]
+  );
+} catch (PDOException $e) {
+  halt("Connection faild: $e");
+}
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
   option('db_conn', $db);
 
@@ -201,7 +202,7 @@ function locked_users() {
   $last_succeeds = $stmt->fetchAll();
 
   $stmt = $db->prepare('SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = :user_id AND :id < id');
-  foreach ($last_succeeds as $row) { 
+  foreach ($last_succeeds as $row) {
     $stmt->bindValue(':user_id', $row['user_id']);
     $stmt->bindValue(':id', $row['last_login_id']);
     $stmt->execute();
@@ -213,6 +214,56 @@ function locked_users() {
 
   return $user_ids;
 }
+
+switch ($current_path){
+  case '/':
+      require('index.html.php')
+      break;
+  case '/login':
+      $result = attempt_login($_POST['login'], $_POST['password']);
+      if (!empty($result['user'])) {
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $result['user']['id'];
+        require redirect_to('/mypage');
+      }
+      else {
+        switch($result['error']) {
+          case 'locked':
+            flash('notice', 'This account is locked.');
+            break;
+          case 'banned':
+            flash('notice', "You're banned.");
+            break;
+            default:
+              flash('notice', 'Wrong username or password');
+              break;
+        }
+        header('location: index.html.php');
+        exit();
+      }
+      break;
+  case 'mypage':
+      $user = current_user();
+
+      if (empty($user)) {
+        flash('notice', 'You must be logged in');
+        header('location: index.html.php');
+        exit();
+      }
+      else {
+        set('user', $user);
+        set('last_login', last_login());
+        require('mypage.html.php');
+      }
+      break;
+  case '/report':
+      return json_encode([
+        'banned_ips' => banned_ips(),
+        'locked_users' => locked_users()
+        ]);
+      break;
+}
+
 
 dispatch_get('/', function() {
   return html('index.html.php');
@@ -262,4 +313,4 @@ dispatch_get('/report', function() {
   ]);
 });
 
-run();
+#run();
