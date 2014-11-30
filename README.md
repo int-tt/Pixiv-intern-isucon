@@ -1,34 +1,61 @@
 Pixiv-intern2014w
 =================
 
-ぴくしぶインターンGithub選考用
+ぴくしぶインターンGithub選考課題
 
-最初のスコア
----------
+##初期スコア
+    #./benchmarker bench --workload N --init /home/isucon/init.sh
+    success:7310	fail:0	score:1579 worload = 1
+    success:16020	fail:0	score:3462 workload = 4
+##phpの変更点
+locked_users内でforeach毎に同じSQLが宣言されていたのでforeach外で宣言するように変更
 
-    [isucon@ip-172-31-19-252 ~]$ ./benchmarker bench
-    18:28:00 type:info	message:launch benchmarker
-    18:28:00 type:warning	message:Result not sent to server because API key is not set
-    18:28:00 type:info	message:init environment
-    18:28:07 type:info	message:run benchmark workload: 1
-    18:29:07 type:info	message:finish benchmark workload: 1
-    18:29:12 type:info	message:check banned ips and locked users report
-    18:29:31 type:report	count:banned ips	value:8
-    18:29:31 type:report	count:locked users	value:2568
-    18:29:31 type:info	message:Result not sent to server because API key is not set
-    18:29:31 type:score	success:7600	fail:0	score:1642
-    [isucon@ip-172-31-19-252 ~]$
+    success:7360	fail:0	score:1590 workload = 1
+    success:16060	fail:0	score:3471 workload = 4
 
-##インスタンス再起動したので...
-        [isucon@ip-172-31-15-229 ~]$ ./benchmarker bench
-        20:09:01 type:info      message:launch benchmarker
-        20:09:01 type:warning   message:Result not sent to server because API key is not set
-        20:09:01 type:info      message:init environment
-        20:09:08 type:info      message:run benchmark workload: 1
-        20:10:09 type:info      message:finish benchmark workload: 1
-        20:10:14 type:info      message:check banned ips and locked users report
-        20:10:33 type:report    count:banned ips        value:6
-        20:10:33 type:report    count:locked users      value:2568
-        20:10:33 type:info      message:Result not sent to server because API key is not set
-        20:10:33 type:score     success:7760    fail:0  score:1677
+同じようにbanned_ipsでも同一の処理を行いました
 
+    success:7860	fail:0	score:1658　workload = 1
+    success:15430	fail:0	score:3334 worload = 4
+
+ここまでやった後
+
+>/report は1分以内にレスポンスを返さなければならない
+
+という文より集計の高速化はそれほど重要では無いと判断し、ベンチ指標の
+
+>HTTP GET/POST リクエストの成功数をベースにする。
+
+から表示のページ表示の高速化に焦点を変更しました。
+
+使われているライブラリのlimonadeはページレンダリングにしか使われておらず、大きなwebサイトでも無かったので
+limonadeを削除しました。
+
+    success:7800	fail:0	score:1685 workload = 1
+    success:15920	fail:0	score:3440 workload = 4
+
+##MYSQL周り
+x3largeと非常に大きいインスタンスでやっているのでdbが沢山メモリを使えるように変更
+
+    key_buffer_size = 32M
+    sort_buffer_size = 2M
+    read_buffer_size = 2M
+    query_cache_type = 1
+
+    max_connections=450
+    thread_cache=450
+
+    innodb_buffer_pool_size = 1024M
+
+
+##エフェメラルポートのレンジ拡張
+デフォルトだとTCP通信に使えるポート数が多くないのでsysctl.confに設定を追記
+
+    net.ipv4.tcp_tw_recycle = 1
+    net.ipv4.tcp_tw_reuse = 1
+    net.ipv4.tcp_fin_timeout = 30
+    net.ipv4.ip_local_port_range = 20000 61000
+
+#最終スコア
+    success:37410	fail:0	score:8081
+    success:71180	fail:0	score:15377
