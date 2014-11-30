@@ -43,7 +43,7 @@ function calculate_password_hash($password, $salt) {
 }
 
 function login_log($succeeded, $login, $user_id=null) {
-  global $db,$config; 
+  global $db,$config;
   $stmt = $db->prepare('INSERT INTO login_log (`created_at`, `user_id`, `login`, `ip`, `succeeded`) VALUES (NOW(),:user_id,:login,:ip,:succeeded)');
   $stmt->bindValue(':user_id', $user_id);
   $stmt->bindValue(':login', $login);
@@ -53,7 +53,7 @@ function login_log($succeeded, $login, $user_id=null) {
 }
 
 function user_locked($user) {
-  global $db,$config;	  
+  global $db,$config;
   if (empty($user)) { return null; }
   $stmt = $db->prepare('SELECT COUNT(1) AS failures FROM login_log WHERE user_id = :user_id AND id > IFNULL((select id from login_log where user_id = :user_id AND succeeded = 1 ORDER BY id DESC LIMIT 1), 0)');
   $stmt->bindValue(':user_id', $user['id']);
@@ -235,11 +235,9 @@ switch ($_SERVER['QUERY_STRING']){
         exit();
       }
       else {
-	#set('user', $user);
-        #set('last_login', last_login());
-	extract(['user' => $user,'last_login' => last_login()]);
-	require('views/mypage.html.php');
-	exit();
+	       extract(['user' => $user,'last_login' => last_login()]);
+	        require('views/mypage.html.php');
+	        exit();
       }
       break;
   case '/report':
@@ -249,6 +247,5 @@ switch ($_SERVER['QUERY_STRING']){
         ]);
       break;
   default:
-	echo "404";
-	break;
+	 echo "404 NOT FOUND";
 }
