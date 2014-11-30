@@ -200,8 +200,8 @@ function locked_users() {
   $stmt->execute();
   $last_succeeds = $stmt->fetchAll();
 
-  foreach ($last_succeeds as $row) {
-    $stmt = $db->prepare('SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = :user_id AND :id < id');
+  $stmt = $db->prepare('SELECT COUNT(1) AS cnt FROM login_log WHERE user_id = :user_id AND :id < id');
+  foreach ($last_succeeds as $row) { 
     $stmt->bindValue(':user_id', $row['user_id']);
     $stmt->bindValue(':id', $row['last_login_id']);
     $stmt->execute();
