@@ -214,13 +214,13 @@ switch ($_SERVER['QUERY_STRING']){
       else {
         switch($result['error']) {
           case 'locked':
-            flash('notice', 'This account is locked.');
+             $_SESSION["FlashNotice"] = 'This account is locked.';
             break;
           case 'banned':
-            flash('notice', "You're banned.");
+            $_SESSION["FlashNotice"] = "You're banned.";
             break;
             default:
-              flash('notice', 'Wrong username or password');
+             $_SESSION["FlashNotice"] = 'Wrong username or password';
               break;
         }
         header('location: /');
