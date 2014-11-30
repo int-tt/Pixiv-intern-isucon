@@ -170,8 +170,8 @@ function banned_ips() {
   $stmt->execute();
   $last_succeeds = $stmt->fetchAll();
 
-  $stmt = $db->prepare('SELECT COUNT(1) AS cnt FROM login_log WHERE ip = :ip AND :id < id');
   foreach ($last_succeeds as $row) {
+    $stmt = $db->prepare('SELECT COUNT(1) AS cnt FROM login_log WHERE ip = :ip AND :id < id');
     $stmt->bindValue(':ip', $row['ip']);
     $stmt->bindValue(':id', $row['last_login_id']);
     $stmt->execute();
